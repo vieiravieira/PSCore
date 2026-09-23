@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treinamento PS · Projeto SVC CORE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F2ED;
+  --surface:#FFFFFF;
+  --ink:#14141C;
+  --muted:#6B6B76;
+  --yellow:#FFE600;
+  --yellow-deep:#F2C400;
+  --navy:#191B2E;
+  --navy-soft:#2A2D4A;
+  --line:#E4E2D8;
+  --good:#1E8E5A;
+  --good-bg:#E9F7EF;
+  --warn:#B4790A;
+  --warn-bg:#FFF4E0;
+  --bad:#C6362E;
+  --bad-bg:#FDEDEC;
+  --info:#2551C9;
+  --info-bg:#EAF0FE;
+  --radius:14px;
+  --shadow: 0 1px 2px rgba(20,20,28,.04), 0 8px 24px rgba(20,20,28,.06);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Inter',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'JetBrains Mono',monospace;}
+h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif; margin:0; letter-spacing:-.01em;}
+
+/* ===== App shell ===== */
+.app{display:flex; min-height:100vh;}
+
+/* Sidebar */
+.sidebar{
+  width:268px; flex:none;
+  background:var(--navy);
+  color:#fff;
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+  padding:20px 14px 24px;
+}
+.brand{display:flex; align-items:center; gap:10px; padding:6px 10px 18px;}
+.brand .mark{
+  width:34px;height:34px;border-radius:9px;background:var(--yellow);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Grotesk';font-weight:700;color:var(--navy);font-size:16px;
+}
+.brand .txt{line-height:1.1;}
+.brand .txt b{display:block;font-family:'Space Grotesk';font-size:14.5px;}
+.brand .txt span{display:block;font-size:11px;color:#B9BBD6;}
+
+.navgroup{margin-bottom:4px;}
+.navlabel{
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.09em; color:#8688AC;
+  padding:14px 12px 6px; font-weight:600;
+}
+.navbtn{
+  width:100%; text-align:left; background:none; border:none; color:#D7D8EC;
+  padding:9px 12px; border-radius:9px; font-size:13.5px; cursor:pointer;
+  display:flex; align-items:center; gap:9px; font-family:'Inter'; font-weight:500;
+  transition:background .12s ease, color .12s ease;
+}
+.navbtn .ic{font-size:15px; width:18px; text-align:center; flex:none;}
+.navbtn:hover{background:rgba(255,255,255,.06); color:#fff;}
+.navbtn.active{background:var(--yellow); color:var(--navy); font-weight:700;}
+.navbtn .tag{
+  margin-left:auto; font-size:9px; font-family:'JetBrains Mono'; background:rgba(255,255,255,.12);
+  padding:2px 5px; border-radius:5px; color:#C7C9E4;
+}
+.navbtn.active .tag{background:rgba(25,27,46,.18); color:var(--navy);}
+
+/* Main */
+.main{flex:1; min-width:0;}
+.topbar{
+  position:sticky; top:0; z-index:5; background:var(--bg);
+  border-bottom:1px solid var(--line);
+  padding:14px 34px; display:flex; align-items:center; justify-content:space-between;
+}
+.topbar .crumb{font-size:12px; color:var(--muted); font-family:'JetBrains Mono';}
+.topbar .prog{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted);}
+.progbar{width:110px;height:6px;background:var(--line);border-radius:4px;overflow:hidden;}
+.progbar i{display:block;height:100%;background:var(--yellow-deep);width:0%;transition:width .3s;}
+
+.content{padding:36px 34px 90px; max-width:980px;}
+.section{display:none; animation:fade .25s ease;}
+.section.active{display:block;}
+@keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+/* Hero label — shipping-label motif */
+.label-tag{
+  display:inline-flex; align-items:center; gap:8px;
+  border:1.5px dashed #C9C7B6; background:#FBFAF5;
+  padding:5px 12px 5px 10px; border-radius:999px;
+  font-family:'JetBrains Mono'; font-size:11px; letter-spacing:.04em; color:var(--muted);
+  margin-bottom:14px;
+}
+.label-tag b{color:var(--ink);}
+.label-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--yellow-deep);}
+
+.hero h2{font-size:30px; margin-bottom:6px;}
+.hero .lede{font-size:15px; color:var(--muted); max-width:640px; line-height:1.55; margin-bottom:22px;}
+
+.pillrow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:26px;}
+.pill{
+  background:var(--surface); border:1px solid var(--line); border-radius:10px;
+  padding:8px 13px; font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:7px;
+}
+.pill .ic{font-size:14px;}
+
+/* Cards */
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:22px 24px; margin-bottom:18px; box-shadow:var(--shadow);
+}
+.card h3{font-size:17px; margin-bottom:14px; display:flex; align-items:center; gap:9px;}
+.card h3 .num{
+  font-family:'JetBrains Mono'; font-size:11px; background:var(--navy); color:var(--yellow);
+  padding:2px 7px; border-radius:6px;
+}
+
+/* Fluxo steps */
+.flux{display:grid; grid-template-columns:1fr; gap:0;}
+.flux-item{
+  display:grid; grid-template-columns:38px 1fr; gap:14px; padding:13px 0;
+  border-bottom:1px dashed var(--line);
+}
+.flux-item:last-child{border-bottom:none;}
+.flux-num{
+  width:34px;height:34px;border-radius:9px;background:var(--yellow);
+  color:var(--navy); font-family:'JetBrains Mono'; font-weight:700; font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+}
+.flux-body b{display:block; font-size:14px; margin-bottom:2px;}
+.flux-body span{font-size:13px; color:var(--muted); line-height:1.5;}
+
+/* two-col grid */
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+@media(max-width:760px){.grid2{grid-template-columns:1fr;} .sidebar{position:fixed; z-index:20; transform:translateX(-100%); transition:transform .2s;} .sidebar.open{transform:none;} .content{padding:24px 16px 90px;} }
+
+.box{border-radius:12px; padding:16px 18px;}
+.box.good{background:var(--good-bg); border:1px solid #CDEBDC;}
+.box.warn{background:var(--warn-bg); border:1px solid #F3DFB0;}
+.box.bad{background:var(--bad-bg); border:1px solid #F4CFCB;}
+.box.info{background:var(--info-bg); border:1px solid #CFDCFB;}
+.box h4{font-size:13px; margin-bottom:9px; display:flex; align-items:center; gap:7px;}
+.box ul{margin:0; padding-left:18px; font-size:13px; line-height:1.6;}
+.box li{margin-bottom:3px;}
+
+/* table-ish "quando fazer" */
+.qft{width:100%; border-collapse:collapse; font-size:13px;}
+.qft td{padding:9px 4px; border-bottom:1px solid var(--line); vertical-align:top;}
+.qft tr:last-child td{border-bottom:none;}
+.qft td.sit{font-weight:700; width:38%; color:var(--navy);}
+.qft td.act{color:var(--muted);}
+
+/* Indicadores chips */
+.indic{display:flex; gap:8px; flex-wrap:wrap;}
+.indic span{
+  background:var(--navy); color:#fff; font-size:11.5px; font-weight:600;
+  padding:6px 12px; border-radius:999px; font-family:'JetBrains Mono';
+}
+
+/* Subprocess accordion */
+.acc{border:1px solid var(--line); border-radius:12px; margin-bottom:12px; overflow:hidden; background:var(--surface);}
+.acc summary{
+  cursor:pointer; list-style:none; padding:15px 18px; font-weight:700; font-size:14.5px;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  font-family:'Space Grotesk';
+}
+.acc summary::-webkit-details-marker{display:none;}
+.acc summary .chev{transition:transform .18s; color:var(--muted); font-size:13px;}
+.acc[open] summary .chev{transform:rotate(90deg);}
+.acc summary:hover{background:#FAFAF6;}
+.acc-body{padding:0 18px 18px;}
+.meta-row{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; padding-top:2px;}
+.meta-row div{font-size:12px;}
+.meta-row b{display:block; color:var(--muted); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px;}
+.mini-steps{display:grid; gap:8px; margin-bottom:12px;}
+.mini-step{display:grid; grid-template-columns:24px 1fr; gap:10px; font-size:13px; align-items:start;}
+.mini-step .n{
+  width:22px;height:22px;border-radius:6px;background:#F1F0E8; color:var(--navy);
+  font-family:'JetBrains Mono'; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; margin-top:1px;
+}
+.mini-step b{display:block; font-size:13px;}
+.mini-step span{color:var(--muted); font-size:12.5px;}
+.tagline{
+  font-size:12px; padding:9px 12px; border-radius:9px; margin-top:4px;
+  background:var(--bad-bg); color:#8E2A22; border:1px solid #F4CFCB; font-weight:600;
+}
+.bp{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;}
+.bp span{background:#F1F0E8; border-radius:7px; padding:4px 9px; font-size:11.5px; color:var(--ink);}
+
+/* Zone grid (inventário) */
+.zonegrid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+@media(max-width:760px){.zonegrid{grid-template-columns:1fr;}}
+.zone{border:1px solid var(--line); border-radius:11px; padding:13px 15px; background:#FCFCF9;}
+.zone b{display:block; font-size:13px; margin-bottom:3px;}
+.zone p{margin:0 0 6px; font-size:12px; color:var(--muted); line-height:1.5;}
+.zone .when{font-size:11px; font-family:'JetBrains Mono'; color:var(--good); font-weight:600;}
+
+/* Overview diagram */
+.flow-overview{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;}
+@media(max-width:760px){.flow-overview{grid-template-columns:1fr;}}
+.flow-col{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px;}
+.flow-col h4{font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:10px;}
+.flow-col .role{
+  background:#FBFAF5; border:1px solid var(--line); border-radius:9px; padding:9px 11px; margin-bottom:8px; font-size:12.5px;
+}
+.flow-col .role b{display:block; font-size:12.5px; margin-bottom:2px;}
+.flow-col .role span{color:var(--muted); font-size:11.5px;}
+
+/* Footer nav (prev/next) */
+.pager{display:flex; justify-content:space-between; margin-top:30px; gap:12px;}
+.pgbtn{
+  background:var(--navy); color:#fff; border:none; border-radius:11px; padding:12px 18px;
+  font-family:'Inter'; font-weight:600; font-size:13.5px; cursor:pointer; display:flex; align-items:center; gap:8px;
+}
+.pgbtn:hover{background:var(--navy-soft);}
+.pgbtn.ghost{background:none; color:var(--muted); border:1px solid var(--line);}
+
+/* Quiz */
+.qcard{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:14px;}
+.qcard p.q{font-weight:700; font-size:14.5px; margin-bottom:12px;}
+.opt{
+  display:block; width:100%; text-align:left; padding:11px 14px; border-radius:10px; border:1px solid var(--line);
+  background:#FCFCF9; margin-bottom:8px; cursor:pointer; font-size:13.5px; font-family:'Inter';
+}
+.opt:hover{border-color:#CFCEBF;}
+.opt.correct{background:var(--good-bg); border-color:#B7E2C9; font-weight:700;}
+.opt.wrong{background:var(--bad-bg); border-color:#F0BEB8;}
+.qexp{font-size:12.5px; color:var(--muted); margin-top:8px; display:none; padding-top:8px; border-top:1px dashed var(--line);}
+.scorewrap{background:var(--navy); color:#fff; border-radius:14px; padding:22px; text-align:center;}
+.scorewrap .num{font-family:'Space Grotesk'; font-size:38px; font-weight:700; color:var(--yellow);}
+
+/* mobile toggle */
+.mobiletoggle{display:none; position:fixed; top:14px; left:14px; z-index:30; background:var(--navy); color:#fff; border:none; width:38px;height:38px;border-radius:9px; font-size:16px;}
+@media(max-width:760px){.mobiletoggle{display:block;} .topbar{padding-left:64px;}}
+</style>
+</head>
+<body>
+
+<button class="mobiletoggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="mark">ML</div>
+      <div class="txt"><b>SVC CORE</b><span>Treinamento Problem Solver</span></div>
+    </div>
+
+    <div class="navgroup">
+      <div class="navlabel">Início</div>
+      <button class="navbtn" data-target="overview" onclick="go('overview')"><span class="ic">🧭</span> Visão geral</button>
+    </div>
+
+    <div class="navgroup">
+      <div class="navlabel">Postos de trabalho</div>
+      <button class="navbtn" data-target="inbound" onclick="go('inbound')"><span class="ic">📥</span> PS Inbound</button>
+      <button class="navbtn" data-target="rua" onclick="go('rua')"><span class="ic">🛣️</span> PS Rua</button>
+      <button class="navbtn" data-target="goleiro" onclick="go('goleiro')"><span class="ic">🥅</span> PS Goleiro</button>
+      <button class="navbtn" data-target="volumoso" onclick="go('volumoso')"><span class="ic">📦</span> PS Volumoso</button>
+      <button class="navbtn" data-target="repack" onclick="go('repack')"><span class="ic">🧰</span> PS Repack</button>
+      <button class="navbtn" data-target="outbound" onclick="go('outbound')"><span class="ic">🚚</span> Outbound / Expedição</button>
+      <button class="navbtn" data-target="inventario" onclick="go('inventario')"><span class="ic">🗂️</span> Inventário</button>
+    </div>
+
+    <div class="navgroup">
+      <div class="navlabel">Programa</div>
+      <button class="navbtn" data-target="implantacao" onclick="go('implantacao')"><span class="ic">🚀</span> Capacitação &amp; rollout</button>
+      <button class="navbtn" data-target="quiz" onclick="go('quiz')"><span class="ic">✅</span> Avaliação <span class="tag">7 Q</span></button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="crumb" id="crumb">svc-core / visão-geral</div>
+      <div class="prog"><span id="progtxt">1 / 9</span><div class="progbar"><i id="progbar"></i></div></div>
+    </div>
+
+    <div class="content" id="content">
+
+      <!-- ============ OVERVIEW ============ -->
+      <section class="section" id="sec-overview">
+        <div class="label-tag"><span class="dot"></span> ETIQUETA · <b>Projeto SVC CORE</b></div>
+        <h2>Padronização, capacitação e melhoria contínua da operação</h2>
+        <p class="lede">O SVC CORE une três rotinas — <b>Diário de Bordo</b>, <b>Problem Solver (PS)</b> e <b>PD Hora Hora</b> — para garantir que cada posto de trabalho execute o fluxo certo, resolva desvios no piso e mantenha os indicadores de qualidade sob controle.</p>
+
+        <div class="pillrow">
+          <div class="pill"><span class="ic">🔍</span> Identificar o problema</div>
+          <div class="pill"><span class="ic">🎯</span> Analisar a causa raiz</div>
+          <div class="pill"><span class="ic">💡</span> Planejar a solução</div>
+          <div class="pill"><span class="ic">⚙️</span> Implementar com foco</div>
+          <div class="pill"><span class="ic">📈</span> Monitorar e garantir resultados</div>
+        </div>
+
+        <div class="card">
+          <h3>Por que este projeto existe</h3>
+          <div class="grid2">
+            <div class="box warn"><h4>⚠️ Dor que resolvemos</h4><ul><li>Falta de padronização na atuação do PS gera formas diferentes de execução entre operações.</li></ul></div>
+            <div class="box info"><h4>🎯 Objetivo</h4><ul><li>Padronizar papéis, responsabilidades e processos com um modelo único de atuação, capacitação e governança.</li></ul></div>
+            <div class="box good"><h4>📈 Impacto esperado</h4><ul><li>Redução de retrabalho, melhoria da qualidade operacional, maior aderência aos processos e ganho de eficiência.</li></ul></div>
+            <div class="box bad"><h4>🚫 Se nada for feito</h4><ul><li>A inconsistência entre operações aumenta, elevando riscos operacionais, custos e impacto nos indicadores.</li></ul></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3><span class="num">MAPA</span> PS dedicados por posto de trabalho</h3>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">O dimensionamento é feito pelo sorting, mas os PS se deslocam entre Inbound, Sorting e Expedição. Treinamento em piso é direcionado para todos os PS e seus backups.</p>
+          <div class="flow-overview">
+            <div class="flow-col">
+              <h4>Inbound</h4>
+              <div class="role"><b>PS Recebimento</b><span>Trativa NC origem, segregação origens + cheapest, fechamento recebimento LH, tratativa de pacotes no sistema, segregação de volumosos e onbipes.</span></div>
+            </div>
+            <div class="flow-col">
+              <h4>Indução, processamento e sorting</h4>
+              <div class="role"><b>PS Rua (Q1–Q4)</b><span>Priorizações, balanço de indução, STAGE ZONE e soluções PS por quadrante.</span></div>
+              <div class="role"><b>PS Volumoso</b><span>Separação e tratamento do fluxo não-sortable.</span></div>
+            </div>
+            <div class="flow-col">
+              <h4>Out-bound</h4>
+              <div class="role"><b>PS Goleiro</b><span>Tratativas de refugo, pacotes cancelados, buffers, MDD, etiquetas brancas.</span></div>
+              <div class="role"><b>PS Repack</b><span>Trativas de avarias e introdução de ciclo, ou fechamento de status para devolução.</span></div>
+              <div class="role"><b>PS Expedição</b><span>Tratativas DESCON e aduanas, garantia de abastecimento de vagas (coordenação STAGE ZONES).</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3><span class="num">POR QUÊ</span> O que o Diário de Bordo entrega</h3>
+          <div class="grid2">
+            <div class="box good"><h4>📈 Produtividade</h4><ul><li>TLs focados nas atividades certas no momento certo, sem desperdício de tempo e sem dúvidas sobre o que fazer.</li></ul></div>
+            <div class="box info"><h4>🏆 Qualidade</h4><ul><li>Pontos críticos de qualidade cobertos durante o turno, para alavancar as entregas.</li></ul></div>
+          </div>
+          <div class="box warn" style="margin-top:12px;"><h4>👁️ Visibilidade</h4><ul><li>A liderança acompanha em tempo real o que foi feito, o que não foi e por quê — com rastreabilidade total.</li></ul></div>
+        </div>
+
+        <div class="pager">
+          <span></span>
+          <button class="pgbtn" onclick="go('inbound')">Começar por PS Inbound →</button>
+        </div>
+      </section>
+
+      <!-- ============ INBOUND ============ -->
+      <section class="section" id="sec-inbound"></section>
+
+      <!-- ============ RUA ============ -->
+      <section class="section" id="sec-rua"></section>
+
+      <!-- ============ GOLEIRO ============ -->
+      <section class="section" id="sec-goleiro"></section>
+
+      <!-- ============ VOLUMOSO ============ -->
+      <section class="section" id="sec-volumoso"></section>
+
+      <!-- ============ REPACK ============ -->
+      <section class="section" id="sec-repack"></section>
+
+      <!-- ============ OUTBOUND ============ -->
+      <section class="section" id="sec-outbound"></section>
+
+      <!-- ============ INVENTARIO ============ -->
+      <section class="section" id="sec-inventario"></section>
+
+      <!-- ============ IMPLANTAÇÃO ============ -->
+      <section class="section" id="sec-implantacao"></section>
+
+      <!-- ============ QUIZ ============ -->
+      <section class="section" id="sec-quiz">
+        <div class="label-tag"><span class="dot"></span> ETIQUETA · <b>Avaliação</b></div>
+        <h2>Verifique seu aprendizado</h2>
+        <p class="lede">7 perguntas cobrindo todos os postos de trabalho. Selecione uma alternativa para ver o feedback.</p>
+        <div id="quizWrap"></div>
+        <div class="scorewrap" id="scoreBox" style="display:none;">
+          <div class="num" id="scoreNum">0/7</div>
+          <div style="font-size:13px;color:#C7C9E4;margin-top:4px;">respostas corretas</div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   DATA — one object per posto de trabalho
+   ============================================================ */
+const DATA = {
+
+inbound: {
+  title: "PS Inbound",
+  eyebrow: "Guia de Execução",
+  lede: "Recebimento, tratativa de não conformidades e segregação de pacotes na entrada da operação.",
+  indicadores: ["Reprocesso","Eficiência de sorting","Fechamento de carrinho G100"],
+  fluxo: [
+    ["Check backlog","Garantir indução do backlog no início da etiquetagem."],
+    ["Tratar NC FOS LH","Tratar não conformidades e desvios em LH."],
+    ["Segregação Cheapest","Separar pacotes fast x slow."],
+    ["Segregação Origem","Separar pacotes por ciclo ou capacidade."],
+    ["Status pacotes recebimento","Ajustar status dos pacotes no sistema, realizar tratativas de não conformidades."],
+    ["Triagem de volumosos","Separar pacotes volumosos (No Sortable) e Sortable (GM)."],
+    ["Alinhamento p/ tratativa inventário","Realizar passagem de turno com pontos de tratativa para o PS de Inventário."]
+  ],
+  sempre:["Garantir a segurança da área, condições, comportamentos e utilização de EPIs.","Garantir o 5S para mitigar falhas na segregação.","Utilizar o insumo adequado ao perfil do pacote.","Reportar 100% dos desvios no recebimento através do Grupo Chat Divergências Logistics.","Validar o processamento do backlog hora a hora (PD's)."],
+  qft: [["Encontrou avaria","Realizar tratativa para o pacote voltar ao fluxo."],["Pacote sem etiqueta","Segregar pacote e acionar TL para análise."],["Ficou com dúvida","Acionar TL."]],
+  sub: [
+    {t:"Priorizar o backlog nas bancadas — induzir primeiro", meta:{quando:"Início do turno", onde:"Bancadas de etiquetagem", como:"Passo a passo abaixo"}, steps:[
+      ["Identificar o backlog","Separe os pacotes que não tiveram sucesso de entrega no dia anterior. Não misture com o fluxo normal."],
+      ["Comunicar o TL, se necessário","Se o backlog não estiver identificado no início da esteira, informe o TL para organizar o time de RTS."],
+      ["Reetiquetar conforme o padrão","Garanta que cada pacote seja reetiquetado corretamente — etiqueta nova em cima da etiqueta antiga."],
+      ["Priorizar a indução","Coloque o backlog na frente do fluxo e induza primeiro."],
+      ["Conferir a efetividade","Verifique se a nova etiqueta está fixa, legível e com código visível."],
+      ["Liberar para o fluxo correto","Direcione o pacote depois da checagem."]
+    ], bp:["Mantenha a bancada organizada","Não acumule pacotes","Em caso de dúvida, acione o TL"], nota:"Cada pacote tratado corretamente evita retrabalho e garante a entrega ao cliente."},
+    {t:"Tratar NC FOS LH", meta:{quando:"Todo inbound", onde:"Sistema FOS + dispositivo HH", como:"Passo a passo abaixo"}, steps:[
+      ["Iniciar o inbound","Realize o inbound de todas as HUs no sistema FOS via HH."],
+      ["Escanear a doca","No HH, escaneie a doca correta."],
+      ["Escanear o veículo","Em seguida, escaneie o veículo."],
+      ["Escanear o documento de carga","Leia o documento de carga no sistema FOS."],
+      ["Tratar divergência","Caso haja divergência ou HU faltante, pare a tratativa e acione o TL."]
+    ], bp:["Conferir todas as HUs","Manter o HH apontado para a etiqueta correta","Registrar a divergência","Em caso de dúvida, acionar o TL"], nota:"A leitura deve ser feita na HU, não na etiqueta que vem junto com o romaneio. O inbound completo e a leitura correta evitam divergências no FOS e retrabalho operacional."},
+    {t:"Status dos pacotes — recebimento", meta:{quando:"Durante o recebimento do Line Haul", onde:"Área de recebimento / quarentena", como:"Passo a passo abaixo"}, steps:[
+      ["Detectar o dano","Durante o recebimento do Line Haul, o REP detecta pacotes ou paletes danificados."],
+      ["Segregar","Separe os pacotes danificados em uma área devidamente identificada (quarentena)."],
+      ["Classificar o dano","O PS classifica: Superficial Leve ou Avaria à Integridade."],
+      ["Tentar reparar","Sempre tente reparar ou recondicionar antes de declarar como 'Danificado'."],
+      ["Registrar no Logistics","Registre o caso no Módulo de Solução de Problemas, sempre com foto."],
+      ["Acionar a origem","Registre a divergência e comunique a origem."],
+      ["Direcionar conforme o status","Pacote apto retorna ao fluxo; avaria grave segue destino definido."]
+    ], bp:["Fotografar o desvio","Manter a área de segregação organizada","Atualizar o status corretamente","Em caso de dúvida, acionar o TL"], nota:"Tratar e registrar corretamente evita retrabalho, melhora a rastreabilidade e protege a carga."},
+    {t:"Segregação de pacotes (Cheapest / Origem / Volumosos)", meta:{quando:"Diário", onde:"Bancadas identificadas", como:"3 segregações em paralelo"}, steps:[
+      ["Segregação Cheapest","Separe os pacotes Fast dos pacotes Slow. Use o pictograma de ampulheta para identificar o fluxo."],
+      ["Segregação por origem","Separe os pacotes por ciclo: AM, PM e SD, ou conforme a capacidade definida. Mantenha cada ciclo na área correta."],
+      ["Triagem de volumosos","Separe os pacotes volumosos (Non-Sortable) dos pacotes Sortable (GM)."]
+    ], bp:["Confira as placas antes de separar","Não misture os fluxos","Mantenha as áreas organizadas","Em caso de dúvida, acione o TL"], nota:"A segregação correta evita retrabalho, reduz erros e mantém o fluxo operacional."},
+    {t:"Inbound — tratativa de inventário", meta:{quando:"Ao final de cada turno", onde:"PS de Inventário / área de Inbound", como:"Registre e comunique os pontos"}, steps:[
+      ["Reunir as informações","Consolide os pacotes e pendências do turno."],
+      ["Tratar pacotes avariados","Informe quantidade, identificação, tipo de dano e tratativa realizada ou pendente."],
+      ["Realizar reembalagem","Registre os pacotes que precisam de reembalagem e o status da atividade."],
+      ["Segregar missort","Identifique pacotes de outra estação e informe o direcionamento para devolução ou reconexão."],
+      ["Organizar por status","Mantenha o layout segregado por status para facilitar a bipagem do inventário."],
+      ["Comunicar o próximo turno","Faça a tratativa dos pontos pendentes, responsáveis, prioridades e próximos passos."]
+    ], bp:["Registre os dados","Identifique os pacotes","Mantenha a segregação","Confirme o recebimento da tratativa","Em caso de dúvida, acione o líder"], nota:"Não deixe pendências sem registro ou comunicação. Uma boa tratativa de inventário garante continuidade e rastreabilidade."}
+  ]
+},
+
+rua: {
+  title: "PS Rua",
+  eyebrow: "Guia de Execução — Sorting GM",
+  lede: "Tratamento de pacotes na esteira de sorting: etiquetas, poka yoke, buffer e balanceamento das ruas.",
+  indicadores: ["Reprocesso","Eficiência de sorting","Fechamento de carrinho G100"],
+  fluxo: [
+    ["Tratar pacotes","Verificar pacotes com mais de uma etiqueta de identificação."],
+    ["Tratar etiqueta incorreta","Tratar pacotes com etiqueta de rota incorreta."],
+    ["Segregar etiqueta branca","Separar em gaiola e enviar para tratamento do Goleiro."],
+    ["Separar pacotes","Separar pacotes GM induzidos no fluxo de volumoso."],
+    ["Acompanhar mapa de calor","Fazer tratativa de buffer saturado, manter as ruas balanceadas."],
+    ["Tratar poka yoke","Auditar gaiola e movimentar pacotes faltantes."],
+    ["Buscar pacotes","Verificar pacotes com mais de 30' sem alocação (HoraxHora/Predict)."],
+    ["Caso PS","Reinduzir pacotes para sugestão de rota."],
+    ["Pós sorting","Auditoria de gaiola, levar pacote faltante para área de carregamento."]
+  ],
+  sempre:["Realizar o hora hora a cada 30 minutos.","Reinduzir todos os pacotes de etiqueta branca.","Buscar pacotes por falha de Poka Yoke e não alocados."],
+  atencao:["Dar feedback para colaboradores sobre erros de Poka Yoke.","Manter gaiola de Poka Yoke Duro / Gaiola Problema zerada."],
+  qft: [["Encontrou avaria","Realizar tratativa para o pacote voltar ao fluxo."],["Pacote não alocado","Identificar se teve inventário D-1."],["Buffer elevado","Direcionar HC para rua, buscar no goleiro reprocesso, rever balanceamento."],["Ficou com dúvida","Acionar TL."]],
+  gaiola: "O que ficará na gaiola PS Rua? → Avarias.",
+  sub: [
+    {t:"Tratar pacotes com mais de uma etiqueta de identificação", meta:{quando:"Diário (todos os dias)", onde:"Buffer de solução de problemas do goleiro", como:"Sempre que encontrar um pacote com mais de uma etiqueta"}, steps:[
+      ["Identificar pacote com mais de uma etiqueta","Verifique se o pacote possui mais de uma etiqueta. Não considerar etiquetas de transporte (ex: DANFE)."],
+      ["Direcionar para esteira em direção ao Goleiro","Direcione o pacote para a esteira para que ele siga para o goleiro."]
+    ], bp:["Verificação de hora em hora (a cada 30 minutos)","Reinduzir todos os pacotes com etiqueta tratada"]},
+    {t:"Tratar pacotes com etiqueta de rota incorreta", meta:{quando:"Diário", onde:"Zonas de sorting e etiquetagem", como:"Sempre que identificar uma etiqueta de rota incorreta"}, steps:[
+      ["Identificar pacote com etiqueta de rota incorreta","Verifique se os shipment IDs da etiqueta de identificação e da etiqueta de rota coincidem. Confirme se o destino é compatível com o pedido."],
+      ["Utilizar App/Sistema para verificar","Utilize o App ou Backoffice para validar a rota correta baseada no Shipment ID. Confirme o destino final no sistema."],
+      ["Coletar para a gaiola de Solução de Problemas","Coletar os pacotes identificados e levar para a gaiola de Solução de Problemas nas ruas. Não misture pacotes corretos e incorretos."],
+      ["Reetiquetar com nova etiqueta correta","Realize a reetiquetagem e cole a nova etiqueta sobre a anterior, garantindo que a antiga esteja completamente coberta."],
+      ["Validar e escanear novas etiquetas","Confira e escaneie a nova etiqueta para garantir legibilidade e destino correto. Peça uma segunda conferência para validação."],
+      ["Enviar pacote para o fluxo correto","Direcione o pacote para o fluxo de indução ou rua correta. Mantenha o buffer de tratativas organizado."]
+    ]},
+    {t:"Tratativa etiqueta errada no sorting — Tratativa Goleiro (Poka Yoke)", meta:{quando:"Detecção em tempo real", onde:"Gaiolas do Goleiro", como:"Fluxo padrão + fluxo de erro"}, steps:[
+      ["Fluxo padrão (OK)","Bipa a shipping label, o HAND verifica a gaiola, leva o pacote até a gaiola correta e bipa o QR da gaiola. Se tela verde, guarde o pacote."],
+      ["Erro (tela laranja ou vermelha)","Colar etiqueta azul sobre a etiqueta de erro, bipar o QR de Problema no carrinho de alocação e direcionar o pacote para o final da esteira."],
+      ["Tratativa do Goleiro","O Goleiro segrega o pacote azul na gaiola do Goleiro; o PS Goleiro realiza a tratativa e direciona para a rua correta."],
+      ["Pacotes avariados","Colar etiqueta azul, levar até a esteira; no final o PS realizará a tratativa do pacote."]
+    ], nota:"Segregar corretamente garante qualidade no processo e evita retrabalho."},
+    {t:"Separar pacotes GM no fluxo de volumoso", meta:{quando:"Diário", onde:"Buffer das esteiras", como:"Passo a passo abaixo"}, steps:[
+      ["Disponibilizar gaiola","Disponibilize uma gaiola de Volumoso no buffer da esteira."],
+      ["Separação física","Realize a separação física e alocação na gaiola."],
+      ["Gaiola saturada (indicador)","Monitore quando a gaiola estiver saturando de pacotes."],
+      ["Direcionar gaiola completa","Direcione os pacotes de Volumoso para a área de volumosos e BIG."],
+      ["Gaiola de reserva (backup)","Garanta que sempre fique uma gaiola de reserva."],
+      ["Confirmar fluxo correto","Após tratar e registrar, direcione o pacote para o fluxo correto."]
+    ]},
+    {t:"Acompanhamento de mapa de calor (Heat Map)", meta:{quando:"Hora a hora (monitoramento contínuo)", onde:"Ruas, ilhas e monitor de mapa de calor", como:"Acompanhar o monitor e realizar Gemba presencial"}, steps:[
+      ["Configurar monitor do mapa de calor","Preparar e disponibilizar o monitor para o monitoramento."],
+      ["Acompanhar mapa de calor no monitor","Monitorar continuamente e identificar pontos de saturação."],
+      ["Realizar Gemba nas ruas/ilhas","Fazer Gemba presencial e revisar a saturação das gaiolas nas ruas."],
+      ["Tratativa de rua saturada","Se saturada, verificar problemas e realizar tratativa, liberando espaço físico."],
+      ["Liberar espaço físico (empty cages)","Retirar gaiolas vazias e garantir fluxo contínuo de contêineres."],
+      ["Confirmar fluxo e espaço livre","Confirmar que a rua está fluida e com espaço disponível."]
+    ]},
+    {t:"Tratar Poka Yoke", meta:{quando:"Diário (em tempo real ao detectar erro)", onde:"Handheld / gaiolas", como:"Detecção → correção"}, steps:[
+      ["Detecção automática","Ao bipar a gaiola com handheld, o sistema bloqueia a ação; identifica divergência de gaiola."],
+      ["Identificação de divergência","Auditoria de gaiola necessária."],
+      ["Ação 1: auditoria de gaiola","Fazer auditoria da gaiola de destino e otimizar a ocupação da gaiola."],
+      ["Ação 2: correção e carregamento","Corrigir e carregar a gaiola completa e validada."]
+    ]},
+    {t:"Buscar pacotes (mais de 30' sem alocação)", meta:{quando:"Hora a hora", onde:"Ruas / prateleiras", como:"Verificação → execução da busca"}, steps:[
+      ["Verificação inicial","Verificar pacotes parados sem atrelamento após a etiquetagem (HoraxHora/Predict)."],
+      ["Verificar recebimento pelo Goleiro","Verificar se o pacote não foi recebido pelo goleiro."],
+      ["Buscas físicas","Realizar as buscas físicas dos pacotes faltantes pela operação."],
+      ["Atualizar base de dados","Atualizar com ID, descrição, tempo sem tratativa e rua/gaiola de destino."],
+      ["Consultar mapeamento do Goleiro","Consultar a base de mapeamento (rua, gaiola, responsável)."],
+      ["Executar a busca","Com as informações do pacote, realizar a busca do pacote faltante na operação."]
+    ]},
+    {t:"Caso PS — reinduzir pacotes para sugestão de rota", meta:{quando:"Hora a hora", onde:"Área PS / Goleiro", como:"Identificar o tipo de desvio"}, steps:[
+      ["Área distante","O time de PS deverá sugerir a rota manualmente."],
+      ["Estado inválido","O time de PS deverá analisar e realizar a tratativa do pacote."],
+      ["SVC incorreto, cancelado ou fraude","O pacote deverá ser direcionado para a área de devolução."]
+    ]},
+    {t:"Pós sorting — auditoria de gaiola", meta:{quando:"Diário", onde:"Ruas / gaiolas", como:"Identificar → gestão pelo Poka Yoke"}, steps:[
+      ["Identificar os pacotes faltantes","Poka Yoke: não deixe passar o que não está onde deveria."],
+      ["Fazer a gestão de pacotes pelo Poka Yoke","Gestão visual para garantir acuracidade e qualidade."],
+      ["Fazer auditoria de gaiolas","Garantir que todos os pacotes estejam na gaiola correta."],
+      ["Levar pacotes faltantes para a área de carregamento","Garantir que o pacote seja destinado corretamente."]
+    ]}
+  ]
+},
+
+goleiro: {
+  title: "PS Goleiro",
+  eyebrow: "Guia de Execução",
+  lede: "Central de tratativas do sorting: recebe todos os desvios (etiqueta errada, MDD, buffer, casos PS, missorted) e devolve o pacote ao fluxo correto.",
+  indicadores: ["Reprocesso","Eficiência de sorting","Fechamento de carrinho G100"],
+  fluxo: [
+    ["Reinduzir pacotes falha de pesca","Reinduzir os pacotes não pescados."],
+    ["Tratar etiqueta branca","Reinduzir pacotes etiqueta branca ou alocar inventário para D+1."],
+    ["Tratar MDD","Se for MDD promessa, reinduzir; se não, enviar para inventário."],
+    ["Pacotes buffer/cancelados","Se envio cancelado, direcionar para devolução ou reinduzir."],
+    ["Caso PS","Identificar tipo de desvio e tratar pacotes."],
+    ["Tratar avaria","Direcionar pacote para tratativa na área de repack."],
+    ["Etiqueta errada","Imprimir etiqueta correta e colar no pacote."],
+    ["Identificar missorted","Enviar ao inventário para realizar tratativa."],
+    ["Tratar pacotes","Verificar pacotes com mais de uma etiqueta de identificação."]
+  ],
+  sempre:["Identificar no goleiro 1 baker para cada tipo de problema (Missorted, Etiqueta Branca, MDD com data, Buffer, Caso PS).","Pacotes de reprocesso por falha de pesca devem ser separados pela letra da ilha.","Bipar todos os pacotes que passam no goleiro, para facilitar a busca dos não alocados."],
+  atencao:["Mensurar através dos bipes no goleiro os números da pesca.","Sempre alimentar as ruas com os pacotes de reprocesso por falha de pesca que passam para o goleiro."],
+  qft: [["Pacote não alocado","Levar para ilha específica e alocar."],["Etiqueta branca","Reinduzir pacote para sugerir rota."],["Número alto de pacotes sem rota","Realizar duplo check na roteirização."],["Pacotes avariados","Direcionar para área PS."]],
+  gaiola: "O que ficará nas gaiolas PS Goleiro? → 1. Etiqueta errada – Poka Yoke (New) · 2. Etiqueta duplicada (New) · 3. Rota branca · 4. MDD · 5. Buffer – processar próximo ciclo · 6. Buffer – processar próximos dias · 7. Buffer – devolver · 8. Caso PS – revisar caso · 9. Pacotes falha pesca.",
+  sub: [
+    {t:"Projeto PS – Goleiro Central (fluxo completo)", meta:{quando:"Contínuo", onde:"Central entre as ilhas A, B, C, D...", como:"Operador Pesca e Sorting — 4 steps"}, steps:[
+      ["1º Pescar pacote","Retirar o pacote da esteira."],
+      ["2º Bipar e tentar conteinerizar","Tela vermelha indica etiqueta errada."],
+      ["3º Colar etiqueta azul","Colar por cima da etiqueta errada."],
+      ["4º Levar até o ponto QR no carrinho","Bipar QR do Poka Yoke, colocar o modo de falha correto e colocar o pacote no carrinho, para ser levado à esteira quando estiver vazio."],
+      ["5º Triagem → Bipagem → Etiquetadora (REP)","Os pacotes seguem para as Ilhas A, B, C, D, X, Y, Z... conforme a etiqueta correta."]
+    ], nota:"Ganhos: melhoria no sorting & fechamento de gaiola."},
+    {t:"Erro de Poka Yoke e avarias no sorting — tratativa Goleiro", meta:{quando:"Tempo real", onde:"Gaiolas do goleiro", como:"Fluxo padrão + fluxo de erro + avarias"}, steps:[
+      ["Fluxo padrão (OK)","Bipa a etiqueta shipping label; o HAND verifica a gaiola; leva até a gaiola correta; bipa o QR da gaiola; se tela verde, guarda o pacote."],
+      ["Erro (tela laranja ou vermelha)","Colar etiqueta azul sobre a etiqueta de erro; bipar QR de Problema no carrinho; direcionar para a esteira; o Goleiro segrega na gaiola correspondente; o PS Goleiro trata e direciona para a rua correta."],
+      ["Pacotes avariados","Colar etiqueta azul; levar até a esteira; o PS realizará a tratativa do pacote no final."]
+    ], nota:"Segregar corretamente garante qualidade no processo e evita retrabalho."},
+    {t:"Reindução dos pacotes não pescados (falha de pesca)", meta:{quando:"Diário", onde:"Goleiro", como:"Passo a passo abaixo"}, steps:[
+      ["Montar layout no goleiro","Uma gaiola por letra de rua."],
+      ["Bipar pacotes com falha","Bipar todos os pacotes que chegam no goleiro."],
+      ["Direcionar para gaiolas","Direcionar os pacotes para as gaiolas específicas."],
+      ["Rua ou reindução","Direcionar para RUA ou REINDUÇÃO."],
+      ["Mensurar pescador","Mensurar via bipe qual pescador gera mais reprocesso."],
+      ["Redirecionar a cada 30 min","A cada 30 min direcionar pacotes de reprocesso."]
+    ], bp:["Verificar etiquetas e separação correta dos pacotes","Acompanhar os relatórios de desempenho"], nota:"Agir rapidamente para reduzir as falhas de pesca."},
+    {t:"Tratar etiqueta branca", meta:{quando:"Diário", onde:"Zonas de sorting e etiquetagem", como:"Passo a passo abaixo"}, steps:[
+      ["Disponibilizar gaiola etiqueta branca","Preparar e disponibilizar uma gaiola específica para a rota branca."],
+      ["Verificar no App/Sistema","Validar no Logistics se existem pacotes de rota branca sem sugestão de rota gerada."],
+      ["Definir rota manualmente","Buscar manualmente no Planification a rota mais próxima para o pacote."],
+      ["Usar conteinerização manual","Utilizar o módulo de conteinerização manual para atrelar o pacote à rota."],
+      ["Reinduzir pacotes no fluxo","Garantir a reindução de todos os pacotes tratados."],
+      ["Gerar nova etiqueta de rota","Confirmar que a nova etiqueta de rota foi gerada. Manter o buffer de tratativas organizado."]
+    ], nota:"A precisão da rota é crucial para a entrega pontual e satisfação do cliente!"},
+    {t:"Triagem por MDD promessa (pacotes não induzidos)", meta:{quando:"Hora a hora", onde:"Gaiola / esteira / inventário", como:"Passo a passo abaixo"}, steps:[
+      ["Identificar","Identificar a data de promessa na etiqueta/sistema."],
+      ["Confirmar gaiolas","Verificar quais gaiolas estão sinalizadas com a data de promessa."],
+      ["Separar por data","Colocar cada pacote na gaiola correspondente à sua data de promessa."],
+      ["Reinduzir (MDD promessa)","Reinduzir no próximo ciclo correspondente à promessa."],
+      ["Não MDD / inventário segregado","Encaminhar ao inventário segregado e seguir o fluxo definido para remessas não MDD."],
+      ["Boas práticas","Conferir a leitura do scanner, manter placas e datas visíveis, não misturar datas, reportar divergências."]
+    ], nota:"A data de promessa define a gaiola e o destino do pacote."},
+    {t:"Buffer / Envio cancelado — segregação no goleiro", meta:{quando:"Diário", onde:"Goleiro / área de indução", como:"Passo a passo abaixo"}, steps:[
+      ["Identificar a gaiola 'BUFFER'","Localizar a gaiola no goleiro."],
+      ["Identificar a gaiola 'ENVIO CANCELADO'","Localizar a gaiola no goleiro."],
+      ["Direcionar pacotes 'BUFFER'","Colocar os pacotes buffer na gaiola correta, evitando misturar com outras gaiolas."],
+      ["Direcionar pacotes 'ENVIO CANCELADO'","Direcionar para a gaiola segregada de devolução."]
+    ], nota:"Verificar se pacote BUFFER está com status 'Envio cancelado'; se sim, direcionar para devolução. Se BUFFER (não cancelado), segregar para reinduzir no próximo ciclo ou no dia de promessa."},
+    {t:"Caso PS — tratativa de desvios do pacote", meta:{quando:"Hora a hora", onde:"Área PS / Goleiro", como:"Identificar o tipo de desvio"}, steps:[
+      ["Desvio: área distante","Ação: sugerir a rota manualmente no sistema."],
+      ["Desvio: estado inválido","Ação: analisar e realizar a tratativa do pacote."],
+      ["SVC incorreto / cancelado / fraude","Ação: direcionar para a área de devolução."]
+    ], nota:"Sempre validar o desvio no sistema antes de movimentar o pacote. Não misturar pacotes de devolução com tratativa PS. Etiquetas modelo: Área Distante, Estado Inválido, SVC Incorreto, Envio Cancelado, Fraude."},
+    {t:"Tratativa etiqueta errada no goleiro (gaiola Etiqueta Azul)", meta:{quando:"Contínuo", onde:"Gaiola 'Etiqueta Azul — Tratativas de falha Poka'", como:"5 passos"}, steps:[
+      ["Identificar pacote com etiqueta de rota incorreta","Verifique se os shipment IDs da etiqueta de identificação e de rota coincidem."],
+      ["Utilizar App/Sistema","Valide a rota correta baseada no Shipment ID."],
+      ["Reetiquetar com nova etiqueta correta","Cole a nova etiqueta sobre a anterior, cobrindo-a completamente."],
+      ["Validar e escanear novas etiquetas","Peça uma segunda conferência para validação."],
+      ["Enviar pacote para o fluxo correto","Direcione para o fluxo de indução ou rua correta."]
+    ], nota:"Qualidade no processo garante a eficiência da operação e a satisfação do cliente."},
+    {t:"Missorted — segregação no goleiro", meta:{quando:"Diário (a cada ciclo)", onde:"Goleiro", como:"3 ações"}, steps:[
+      ["Identificar a gaiola 'MISSORTED'","Garantir que a gaiola esteja identificada e posicionada no goleiro."],
+      ["Direcionar pacotes Missorted","Separar apenas pacotes de outra estação e manter a organização."],
+      ["Encaminhar conforme fluxo","Enviar o pacote para tratativa ou para a área de devolução."]
+    ]},
+    {t:"Tratar pacotes com mais de uma etiqueta de identificação", meta:{quando:"Diário", onde:"Buffer de indução, ruas e solução de problemas", como:"6 passos"}, steps:[
+      ["Identificar pacote com mais de uma etiqueta","Não considerar etiquetas de transporte (ex: DANFE)."],
+      ["Validar qual etiqueta está correta","Confira no sistema (Backoffice/App) qual etiqueta é válida para o destino do pacote."],
+      ["Remover etiqueta incorreta","Retire cuidadosamente as etiquetas incorretas, sem danificar a correta."],
+      ["Verificar etiqueta correta","Confira se está bem fixada, legível e com código de barras visível."],
+      ["Registrar tratativa","Registre no sistema (App/Backoffice) o ID do pacote e a ação realizada."],
+      ["Enviar pacote para o fluxo correto","Direcione o pacote após tratar e registrar."]
+    ]}
+  ]
+},
+
+volumoso: {
+  title: "PS Volumoso",
+  eyebrow: "Guia de Execução",
+  lede: "Separação, tratamento e expedição do fluxo não-sortable (Large / Oversized).",
+  indicadores: ["Reprocesso","Eficiência de sorting","Fechamento de carrinho G100"],
+  fluxo: [
+    ["Separar pacotes","Separar GM do Volumoso e direcionar para esteira."],
+    ["Tratar pacotes","Pacotes com mais de uma etiqueta."],
+    ["Tratar duplicados","Validar se buyer comprou 2 pacotes ou 1 e seguir com fluxo."],
+    ["Tratar etiqueta rota incorreta","Reinduzir pacote e colar nova etiqueta."],
+    ["Tratar missorted","Direcionar pacote para tratativa de devolução ou reconexão."],
+    ["Tratar etiqueta branca","Reinduzir pacote para sugestão de rota."],
+    ["Tratar caso PS, cancelado e entregue","Direcionar pacote para solução correspondente ou devolução."],
+    ["Acompanhar buffer","Remanejar HC e informar caso de desbalanceamento."],
+    ["Validar backlog não induzido","Priorizar processamento de backlog."],
+    ["Direcionar pós sorting","Auditar rotas que não fecharam automaticamente com faltantes AT."],
+    ["Tratar avarias","Orientar time sobre triagem antes do onebipe e seguir fluxo de tratativa."]
+  ],
+  sempre:["Triar pacote para identificar avarias antes do ONEBIPE.","Separar Volumoso x GM.","Seguir pictograma para pacotes volumosos.","Realizar hora x hora a cada 30 min contando com o volumoso.","Validar backlog de volumoso para indução e alocação."],
+  qft: [["Encontrou pacotes não alocados","Validar backlog de volumoso."],["Encontrou avaria","Validar causa, lançar e tratar."],["Não achar um volumoso","Usar stage zones para melhorar as áreas de volumoso."],["Ficou com dúvida","Acionar TL."]],
+  sub: [
+    {t:"Separação de pacotes GM do fluxo de volumosos", meta:{quando:"Diário", onde:"Início da esteira Berenice ou Meduza", como:"6 passos"}, steps:[
+      ["Preparar a gaiola GM","Disponibilize uma gaiola de GM no início da esteira."],
+      ["Identificar os pacotes GM","Separe fisicamente os pacotes GM dos pacotes Large e Oversized."],
+      ["Alocar na gaiola","Coloque os pacotes GM na gaiola correta, sem misturar com volumosos."],
+      ["Manter a gaiola organizada","Mantenha os pacotes estáveis e as etiquetas visíveis."],
+      ["Verificar a saturação","Acompanhe a capacidade da gaiola para evitar transbordo."],
+      ["Direcionar para a esteira GM","Ao saturar, envie a gaiola para a esteira de GM e disponibilize outra vazia."]
+    ], nota:"Não misture GM com Large ou Oversized."},
+    {t:"Tratar pacotes com mais de uma etiqueta de identificação", meta:{quando:"Diário", onde:"Início da esteira e ruas, área monitorada por câmeras", como:"6 passos"}, steps:[
+      ["Identificar pacote com mais de uma etiqueta","Pare o pacote e confirme se há duas ou mais etiquetas no mesmo volume."],
+      ["Encaminhar à solução de problemas","Disponibilize e utilize uma gaiola de Solução de Problemas no início da esteira e nas ruas."],
+      ["Validar o conteúdo","Valide o conteúdo do pacote em área autorizada e monitorada por câmeras."],
+      ["Comparar com o Backoffice","Compare o conteúdo físico com a descrição no Backoffice e identifique o Shipment ID correto."],
+      ["Retirar a etiqueta incorreta","Retire cuidadosamente apenas a etiqueta que não corresponde ao conteúdo."],
+      ["Dar fluxo correto","Após a validação, encaminhe o pacote com a etiqueta e o Shipment ID corretos."]
+    ], nota:"Não dê fluxo antes de validar. Não danifique o pacote nem a etiqueta correta."},
+    {t:"Tratar pacotes duplicados", meta:{quando:"Diário", onde:"Início da esteira e ruas, área monitorada por câmeras", como:"6 passos"}, steps:[
+      ["Identificar pacotes com o mesmo ID","Separe os dois pacotes e confirme se possuem o mesmo Shipment ID."],
+      ["Encaminhar à solução de problemas","Disponibilize uma gaiola de Solução de Problemas no início da esteira e nas ruas."],
+      ["Validar o conteúdo","Compare o conteúdo físico dos pacotes em área monitorada por câmeras."],
+      ["Conferir no Backoffice","Compare os pacotes com o Backoffice e confirme os itens e volumes comprados."],
+      ["Verificar a compra do buyer","Confirme se o buyer comprou mais de um volume do mesmo item."],
+      ["Dar o destino correto","Se forem volumes da mesma compra, acondicione-os juntos."]
+    ], nota:"Não conte como dois pedidos antes da validação. Mantenha a rastreabilidade."},
+    {t:"Tratar pacotes com etiqueta de rota incorreta", meta:{quando:"Diário", onde:"Ruas e área de Solução de Problemas", como:"6 passos"}, steps:[
+      ["Identificar a rota incorreta","Compare a etiqueta de identificação com a etiqueta de rota."],
+      ["Segregar o pacote","Coloque o pacote na gaiola de Solução de Problemas."],
+      ["Conferir o Shipment ID","Valide o Shipment ID da etiqueta de identificação."],
+      ["Confirmar a rota correta","Consulte o fluxo correto e a gaiola correspondente."],
+      ["Realizar a reetiquetagem","Cole a nova etiqueta de rota por cima da etiqueta anterior."],
+      ["Dar fluxo correto","Envie o pacote para a gaiola e a rota corretas."]
+    ], nota:"Não deixe duas etiquetas de rota visíveis. Confira antes de liberar."},
+    {t:"Tratar pacotes de outra estação (Missorted)", meta:{quando:"Diário", onde:"Início da esteira Berenice ou Meduza e ruas", como:"6 passos"}, steps:[
+      ["Identificar o missort","Verifique se o pacote pertence a outra estação."],
+      ["Segregar o pacote","Coloque o pacote na gaiola de Solução de Problemas."],
+      ["Confirmar a origem","Valide a estação correta do pacote."],
+      ["Não induzir no fluxo local","Evite misturar o pacote com a operação desta estação."],
+      ["Definir a tratativa","Escolha entre devolver ao seller ou reconexão."],
+      ["Direcionar para o fluxo correto","Envie o pacote à tratativa definida e mantenha o registro."]
+    ], nota:"Não envie o missort para a rota local."},
+    {t:"Tratar pacotes com etiqueta de rota branca", meta:{quando:"Diário", onde:"Início da indução e Logistics", como:"6 passos"}, steps:[
+      ["Identificar a rota branca","Separe pacotes sem etiqueta de rota."],
+      ["Colocar na gaiola correta","Use a gaiola de rota branca no início da indução: Berenice ou Goleiro, conforme o fluxo."],
+      ["Consultar o Logistics","Verifique se há promessa e se o sistema gerou sugestão de rota."],
+      ["Buscar a rota no Planification","Quando necessário, busque manualmente a rota mais próxima."],
+      ["Conteinerizar manualmente","Use o módulo de conteinerização manual para atrelar o pacote à rota escolhida."],
+      ["Reinduzir o pacote","Reinduza para gerar a nova etiqueta de rota."]
+    ], nota:"Não deixe pacotes com promessa sem rota."},
+    {t:"Tratar pacotes com etiqueta PS, cancelados ou status 'Entregue'", meta:{quando:"Diário", onde:"Início da esteira Berenice ou Meduza e ruas", como:"6 passos"}, steps:[
+      ["Identificar a etiqueta ou status","Verifique se o pacote é PS, cancelado ou consta como entregue."],
+      ["Segregar o pacote","Coloque-o na gaiola de Solução de Problemas."],
+      ["Classificar o problema","Separe de acordo com o tipo de tratativa (PS / Cancelado / Entregue)."],
+      ["Conferir a finalidade","Valide se o pacote deve seguir para processamento ou devolução."],
+      ["Direcionar à área correta","Envie o pacote para a solução correspondente."],
+      ["Evitar reprocesso","Garanta que o pacote não retorne ao fluxo incorreto."]
+    ], nota:"Não induza pacotes segregados sem validação."},
+    {t:"Acompanhar buffer e saturação das ruas", meta:{quando:"Diário, de hora em hora", onde:"Ruas do sorting de volumosos", como:"6 passos"}, steps:[
+      ["Realizar o Gemba","Percorra frequentemente as ruas do sorting."],
+      ["Verificar a saturação","Avalie visualmente o volume de pacotes em cada rua."],
+      ["Identificar desbalanceamento","Observe ruas sobrecarregadas ou com baixa ocupação."],
+      ["Remanejar HC","Mova colaboradores entre as ruas conforme necessário."],
+      ["Acompanhar o resultado","Confirme se o buffer foi normalizado."],
+      ["Comunicar ao TL","Informe o TL quando houver desbalanceamento do sorting."]
+    ], nota:"Não aguarde a rua transbordar."},
+    {t:"Validar pacotes volumosos de backlog não induzidos", meta:{quando:"Diário", onde:"Logistics e ruas do sorting", como:"6 passos"}, steps:[
+      ["Consultar o Logistics","Verifique pacotes marcados como 'Não separáveis'."],
+      ["Identificar o backlog","Priorize pacotes roteirizados e com promessa."],
+      ["Buscar o pacote","Realize a busca física nas ruas e áreas do volumoso."],
+      ["Confirmar a pendência","Verifique se o pacote não foi induzido."],
+      ["Orientar o time","Reforce a prioridade de processamento do backlog."],
+      ["Comunicar ao TL","Informe os pacotes pendentes que não foram encontrados."]
+    ], nota:"Backlog não localizado pode impedir o fechamento automático da gaiola."},
+    {t:"Realizar o pós-sorting no volumoso", meta:{quando:"Diário", onde:"Área de separação e gaiolas de volumoso", como:"6 passos"}, steps:[
+      ["Identificar gaiolas não fechadas","Localize as gaiolas que não fecharam automaticamente."],
+      ["Analisar o gap","Verifique a falta na estação da rota."],
+      ["Auditar os volumosos","Confira os pacotes volumosos pertencentes à rota."],
+      ["Orientar o time","Informe as rotas que não tiveram fechamento automático."],
+      ["Bipar os pacotes","Bipe todos os pacotes da rota com gap em 'faltante at station'."],
+      ["Conferir o fechamento","Confirme que a gaiola foi completada e processada corretamente."]
+    ], nota:"Não encerre a rota sem auditar os faltantes."},
+    {t:"Tratar avarias", meta:{quando:"Diário", onde:"Solução de Problemas, Logistics e área de triagem", como:"6 passos"}, steps:[
+      ["Realizar triagem","Verifique a embalagem antes do one-bipe."],
+      ["Segregar o pacote","Separe imediatamente o pacote avariado."],
+      ["Identificar a origem do dano","Avalie se o dano ocorreu na origem ou na operação."],
+      ["Classificar o dano","Registre o tipo de avaria no Logistics."],
+      ["Reparar, quando possível","Faça o reparo e retorne o pacote ao fluxo."],
+      ["Destinar o irreversível","Encaminhe para devolução ou destruição conforme o fluxo."]
+    ], nota:"Não envie pacote avariado ao buyer. Todo lançamento deve ser registrado no Logistics."}
+  ]
+},
+
+repack: {
+  title: "PS Repack",
+  eyebrow: "Guia de Execução",
+  lede: "Reembalagem, tratativa de avarias e reintegração do pacote ao fluxo dentro do SLA.",
+  indicadores: ["SLA PS","Damaged","Fechamento de carrinho G100"],
+  fluxo: [
+    ["Identificar necessidade de reembalagem","Verificar o dano do pacote."],
+    ["Registro do dano","Registrar sistemicamente o tipo do dano no pacote e tirar foto."],
+    ["Realizar reparo/reembalagem","Sempre tentar o reparo da embalagem."],
+    ["Solicitar aprovação da avaria","Solicitar ao TL a aprovação para destinar pacote para o fluxo correto."],
+    ["Reintegrar ao fluxo operacional","Devolver pacote ao sorting para o despacho ou enviar para devolução/destruição."]
+  ],
+  sempre:["Realizar o lançamento no Logistics para qualquer tipo de avaria.","Tentar reembalar o pacote antes de declarar como avaria.","Manter área PS com bakers identificados e separados por tipo de problema."],
+  atencao:["TLs devem validar avarias até 350 dólares na operação.","Lançar avarias da origem em até 24h."],
+  qft: [["Avaria na gaiola Poka","Tratar todas no mesmo ciclo de sorting."],["Pacotes acima de US$ 350","Acionar TLs para aprovação no piso."],["Avaria para destruição","Seguir regras de segurança e descarte."],["Ficou com dúvida","Acionar TL."]],
+  sub: [
+    {t:"Repack — reembalagem de pacotes", meta:{quando:"Durante o processamento (Inbound, Sorting e RTS)", onde:"Área de tratativas sinalizada e monitorada por CCTV", como:"6 passos"}, steps:[
+      ["Identificar a necessidade","Inspecione o pacote e classifique: dano superficial leve ou possível avaria do produto. Nunca deixe no chão."],
+      ["Registrar o dano no HH","Escaneie o pacote, acesse Solução de Problemas, 'Gerar caso' e 'Registrar dano'. Informe origem, motivo e tipo, com foto focada."],
+      ["Realizar o reparo","Sempre tente reparar antes de declarar o pacote como danificado."],
+      ["Manusear com segurança","Dano com possível avaria: consulte o Shipping Back Office."],
+      ["Definir o destino","Tela verde: reparar e enviar ao sorting. Tela de seleção parcial: devolução, salvados ou destruição."],
+      ["Reintegrar ao fluxo","Leve o pacote ao sorting, confirme a rota e atualize o status."]
+    ], nota:"Proibido escrever na embalagem ou no produto. TL deve aprovar entrega parcial antes do pacote sair em rota."},
+    {t:"Repack — registrar e tratar pacotes avariados", meta:{quando:"Durante Inbound, Sorting e RTS", onde:"Área de tratativas monitorada por CCTV", como:"6 passos"}, steps:[
+      ["Identificar o dano","Inspeção visual e classificação."],
+      ["Registrar no HH","Escanear, gerar caso, registrar dano."],
+      ["Informar a origem","Service Center, origem, vendedor, rota ou transporte."],
+      ["Fotografar a avaria","Foto focada e registro correto."],
+      ["Reparar e reembalar","Fita MELI/Gorilla, filme e caixa."],
+      ["Confirmar o destino","Tela verde ou 'Já reacomodei o pacote'."]
+    ], nota:"Registrar imediatamente, no máximo em 24h. Nunca escrever na embalagem ou no produto."},
+    {t:"Repack — realizar reparo e reembalagem", meta:{quando:"No mesmo ciclo operacional", onde:"Área de tratativas monitorada por CCTV", como:"6 passos"}, steps:[
+      ["Classificar o dano leve","Ruptura ou abertura externa sem abrir o pacote."],
+      ["Usar os insumos corretos","Fita MELI ou Gorilla, filme, caixa e pictogramas."],
+      ["Reembalar com segurança","Proibido escrever na embalagem ou no produto."],
+      ["Tratar possível avaria","Consultar Shipping Back Office; abrir somente em área monitorada."],
+      ["Respeitar restrições","Não violar lacres, embalagem primária ou CPC. Cerâmicos: manuseio por 2 colaboradores."],
+      ["Confirmar o reparo","Verificar estabilidade, proteção e identificação."]
+    ], nota:"Sempre tente reparar antes de declarar o pacote como danificado."},
+    {t:"Repack — definir o destino do pacote", meta:{quando:"Após o registro do dano", onde:"Logistics — HH e Desktop", como:"6 passos"}, steps:[
+      ["Aguardar a tela do sistema","Aguardar retorno após o registro."],
+      ["Tela verde: reparar e enviar","Itens bons seguem para o sorting."],
+      ["Entrega parcial","Itens bons seguem e avariados são destinados conforme aprovação do TL — exige aprovação antes da saída em rota."],
+      ["Devolução","Status avariado e envio para área de devolução."],
+      ["Doação, salvados ou destruição","Seguir o destino indicado e as regras do produto. Líquidos, CPG e riscos vão para destruição."],
+      ["Finalizar no sistema","Clicar em 'Já reacomodei o pacote' e confirmar o destino."]
+    ], nota:"O destino correto evita atraso, perda e reclamação."},
+    {t:"Repack — reintegrar ao fluxo operacional", meta:{quando:"No mesmo ciclo operacional", onde:"Monitor Sorting e rota correta", como:"6 passos"}, steps:[
+      ["Confirmar o pacote reparado","Conferir embalagem, etiqueta e integridade."],
+      ["Levar ao sorting","Transportar com cuidado e sem deixar no chão. Não enviar para rota diferente."],
+      ["Confirmar a rota","Garantir a conteinerização na rota correta."],
+      ["Atualizar o status","Usar 'Para despachar' quando necessário."],
+      ["Monitorar o resultado","Acompanhar pacotes recuperados e tempo de aprovação."],
+      ["Registrar exceções","Anotar casos sem registro sistêmico: data, ID, descrição e tratativa. Evite perder o SLA."]
+    ], nota:"O pacote reparado deve retornar ao fluxo no mesmo ciclo."}
+  ]
+},
+
+outbound: {
+  title: "Outbound / PS Expedição",
+  eyebrow: "Guia de Execução",
+  lede: "Certificação de vagas, tratativa de pacotes na expedição, aduanas e acompanhamento de OOT/TMC.",
+  indicadores: ["BPP","OOT","TMC"],
+  fluxo: [
+    ["Certificar vagas x ondas","Realizar um Gemba nas vagas antes da expedição iniciar."],
+    ["Postos de PS em pontos na expedição","Preparar os insumos necessários para a tratativa de pacotes."],
+    ["Tratar pacotes","Realizar reembalagem quando houver necessidade."],
+    ["Aduana","Acompanhar as aduanas em execução."],
+    ["Inversão de pacotes","Segregar em gaiolas os pacotes invertidos por rota."],
+    ["Desconteinerização","Executar e acompanhar o processo no sistema."],
+    ["OOT","Acompanhar o carregamento dos carros nas vagas cadastradas."],
+    ["TMC","Monitorar a duração do carregamento do driver na vaga."]
+  ],
+  sub: [
+    {t:"Certificar vagas x ondas", meta:{quando:"Antes de iniciar a expedição", onde:"Vagas de expedição", como:"Via QR Code no Logistics"}, steps:[
+      ["Abrir mapa no Logistics","Verifique se as rotas correspondentes estão em suas respectivas vagas."],
+      ["Percorrer vagas (Gemba)","Realize gemba nas vagas antes de iniciar a expedição."],
+      ["Ler QR Code e comparar","Compare o QR Code lido com a rota esperada."],
+      ["Faltou rota? Acionar Reps","Acione os Reps caso identifique divergência."],
+      ["Tudo certo? Liberar expedição","Confirme e libere a expedição."]
+    ]},
+    {t:"Postos de PS em pontos na expedição", meta:{quando:"Contínuo", onde:"Pontos estratégicos da expedição", como:"5 passos"}, steps:[
+      ["Preparar carrinhos de insumos","Caixas, fitas adesivas e sacos/sacolas."],
+      ["Posicionar nos pontos estratégicos","Posicione nos pontos estratégicos da expedição."],
+      ["Reembalar os pacotes quando necessário","Trate os pacotes que precisam de reembalagem."],
+      ["Abrir o ticket no Logistics","Registre a tratativa."],
+      ["Realocar no fluxo correto","Direcione o pacote de volta ao fluxo."]
+    ]},
+    {t:"Tratar pacote (reembalagem na expedição)", meta:{quando:"Contínuo", onde:"Expedição", como:"6 passos"}, steps:[
+      ["Classificar o dano leve","Ruptura ou abertura externa sem abrir o pacote."],
+      ["Usar os insumos corretos","Fita MELI ou Gorilla, filme, caixa e pictogramas."],
+      ["Reembalar com segurança","Proibido escrever na embalagem ou no produto."],
+      ["Tratar possível avaria","Consultar Shipping Back Office; abrir somente em área monitorada."],
+      ["Respeitar restrições","Não violar lacres, embalagem primária ou CPC; cerâmicos por 2 colaboradores."],
+      ["Confirmar o reparo","Verificar estabilidade, proteção e identificação."]
+    ]},
+    {t:"Acompanhamento de aduanas", meta:{quando:"Durante a aduana", onde:"Vagas de expedição", como:"4 passos"}, steps:[
+      ["Acompanhar as aduanas em execução","Monitorar via sistema."],
+      ["Verificar bipagem de todos os pacotes","Confirmar que o Rep realiza a bipagem completa."],
+      ["Confirmar entrega ao motorista","Entregar o pacote ao motorista."],
+      ["Pacotes bipados a mais? Segregar em gaiola","Segregar em uma gaiola sinalizada."]
+    ]},
+    {t:"Inversão de pacotes", meta:{quando:"Diário", onde:"Expedição", como:"4 passos"}, steps:[
+      ["Segregar em gaiolas todos os pacotes invertidos","Coloque os pacotes invertidos na gaiola correta."],
+      ["Registrar seus IDs em planilha","Documente cada pacote invertido."],
+      ["Verificar rotas/ruas com maior incidência","Identifique padrões de inversão."],
+      ["Reportar para Operação ou TL","Comunique os pontos de maior incidência."]
+    ]},
+    {t:"Desconteinerização (retirar pacote de uma rota)", meta:{quando:"Quando necessário", onde:"Sistema + expedição", como:"Validar o motivo antes de executar"}, steps:[
+      ["Executar no sistema","Executar e acompanhar o processo de 'Desconteinerização'."],
+      ["Excesso de volume","Pacote grande demais para o veículo ou saca."],
+      ["Avarias graves","Pacote danificado sem possibilidade de envio."],
+      ["Divergências/Erros","Identificados durante a auditoria de carrinhos."]
+    ]},
+    {t:"OOT + TMC (Análise de Ops Clock)", meta:{quando:"Contínuo durante a expedição", onde:"Logistics — Análise de Ops Clock", como:"5 passos"}, steps:[
+      ["Tela do Logistics aberta","O PS fica com a tela do Logistics aberta na Análise de Ops Clock."],
+      ["Acompanhar o % de avanço","Acompanhar o percentual de avanço do OOT por ciclo e por onda."],
+      ["Verificar On Time / Delay","A ferramenta mostra em tempo real se a estimativa de término está On Time ou em Delay."],
+      ["Acompanhar o TMC","Os carros devem carregar em 30 minutos; o Logistics mostra se o carro está atrasado."],
+      ["Avisar o TL em caso de atraso","Caso existam carros atrasados na onda, avisar o TL para realizar as tratativas."]
+    ]}
+  ]
+},
+
+inventario: {
+  title: "Inventário",
+  eyebrow: "Guia de Execução",
+  lede: "Contagem, gestão de zonas operacionais, expedição sistêmica (EnoE/Ship 2.0/Legacy), Receita Federal e RTS.",
+  indicadores: ["Acurácia de inventário","Eficiência de sorting","Fechamento de carrinho G100","BPP"],
+  fluxo: [
+    ["Frequência e zonas de inventário","Definir quando e onde inventariar."],
+    ["Execução da contagem","Realizar a contagem no Logistics (SVC)."],
+    ["Gemba pós inventário","Buscar pacotes faltantes e tratar deslocados."],
+    ["Execução EnoE, Ship 2.0 e Legacy","Etiquetagem para devoluções no SVC."],
+    ["Execução EnoE Ship 2.0: passo a passo","Montagem de pallet (HU)."],
+    ["Execução EnoE Ship 2.0: identificação e documentação","Preparar e registrar o HU."],
+    ["Expedição e despacho sistêmico: passo a passo","YMS + TMS/FOS."],
+    ["Expedição SVC dedicados (não híbridos)","Fluxo de despacho para sites dedicados."],
+    ["Expedição e módulo de despacho PA (SVC híbrido)","Fluxo para postos avançados."],
+    ["Execução processo Legacy (off-line)","Quando o sistema estiver fora do ar."],
+    ["Receita Federal","Bloqueio e atualização de status."],
+    ["RTS (retorno à estação)","Preparação da área."],
+    ["RTS (passo a passo)","Recebimento e classificação no Logistics."],
+    ["Recepção de pacotes RTS","Classificar: sorting, devolução, solução de problemas ou failover."]
+  ],
+  sempre:["Realize Gembas pós inventário para encontrar pacotes faltantes.","Trate os deslocados para aumentar a acuracidade das zonas.","Mantenha pacotes de Receita Federal em quarentena até que sejam confiscados."],
+  atencao:["Utilize sempre seu usuário.","Apenas o PS e o TL têm autorização para virar status de pacotes."],
+  qft: [["Encontrou avaria","Realizar tratativa para o pacote voltar ao fluxo."],["Pacote não alocado","Identificar se teve inventário D-1."],["Buffer elevado","Direcionar HC para rua, buscar no goleiro reprocesso, rever balanceamento."],["Ficou com dúvida","Acionar TL."]],
+  zonas: [
+    ["1 · Problem Solver (PS)","Área para resolução de problemas: divergências (faltantes, retirados de aduana e avarias sem tratativa).","Abrir depois do inventário do sorting e das tratativas de faltantes. Resolução obrigatória em até 24h."],
+    ["2 · Sorting","Zona principal dos pacotes para despachar.","—"],
+    ["3 · In Container","Zona principal dos pacotes que estão no carrinho.","Abrir após finalização de carregamento do SD, após encerrar o carregamento de todas as rotas."],
+    ["4 · Missort","Pacotes recebidos indevidamente de outro SVC.","Abrir no final do sorting, para identificar desvios de separação."],
+    ["5 · Buffered","Pacotes segregados aguardando processamento MDD e Promessa.","Abrir no final do sorting, para controle de pacotes retidos."],
+    ["6 · Dispatch","Zona principal dos pacotes prontos para rota.","Abrir após finalização da expedição do SD ou último ciclo."],
+    ["7 · Damaged","Pacotes identificados com avarias na embalagem ou produto.","Abrir após aprovação sistêmica das avarias."],
+    ["8 · Bulky Return","Devoluções de pacotes de linha branca.","Abrir após o final do sorting. Manter em local segregado específico."],
+    ["9 · For Returns","Pacotes destinados ao fluxo de devolução.","Abrir após as baixas sistêmicas dos pacotes devolvidos."],
+    ["10 · Fraud","Pacotes com suspeita de irregularidades sistêmicas ou físicas.","Abrir após o final do sorting. Manter em local segregado específico."]
+  ],
+  sub: [
+    {t:"Execução da contagem de inventário", meta:{quando:"Conforme frequência definida", onde:"Logistics (SVC)", como:"6 passos"}, steps:[
+      ["Abrir inventário","Clique em 'Inventário' em Ferramentas de processamento de pacotes."],
+      ["Selecionar área física","Selecione a área onde os pacotes serão escaneados (mesma área no Logistics)."],
+      ["Confirmar área","Confirme a área e clique em 'Começar'. 'Cancelar' só pode ser feito por PS ou TL."],
+      ["Escanear pacotes com HH (sem 2D)","Escaneie todos os pacotes da área com o HH — não usar leitores 2D (conta como registro manual)."],
+      ["Marcar faltantes imediatamente","Se não localizar, marque como faltante."],
+      ["Notas e exceções","Gestão de Inventário lista apenas pacotes do SVC (exclui Exchange Points, Delivery Cell e NEx)."]
+    ], bp:["Conferir área antes de iniciar","HH carregado e conectado","Etiquetas legíveis e sem dobras","Divergências? Acione PS/TL"]},
+    {t:"Gemba pós inventário", meta:{quando:"Após a contagem", onde:"Área de inventário", como:"3 passos"}, steps:[
+      ["Buscar pacotes faltantes","Antes de finalizar a zona, busque ativamente. Revise prateleiras, gaiolas e áreas de apoio; faça varredura com HH. Não finalize a zona até concluir a busca."],
+      ["Verificar gaiolas da área","Returns, Dispatch, Fraud, Sorting, Problem Solving, Missorted, Containerized, Damaged, Buffered."],
+      ["Tratar pacotes deslocados","Identifique deslocados e mova-os para a gaiola correta. Atualize a classificação no sistema. 1 pacote = 1 fluxo correto."]
+    ], nota:"Rastreabilidade depende de etiquetas legíveis e posição correta."},
+    {t:"Gestão de pacotes faltantes e acuracidade", meta:{quando:"Diário", onde:"Área de inventário", como:"5 pontos"}, steps:[
+      ["O que conta como inventariado com sucesso","Status = Concluído + Tipo = Manual ou QR Code. Se Tipo = Nulo, marcar como Faltante."],
+      ["Regra de ouro (antes de bipar Missing)","Faça busca física exaustiva antes de bipar como Missing."],
+      ["Responsabilidade (foco do time)","Foque nos faltantes injustificados (Pacotes DC, Awaiting Police Report) no Looker Conteos."],
+      ["Pacotes intrusivos (tela laranja no HH)","Separar fisicamente, levar à zona correta e bipar na zona correta."],
+      ["Boas práticas","Revisar área antes de concluir, confirmar endereço sistêmico, registrar evidências quando necessário."]
+    ], nota:"Objetivo: garantir acuracidade do inventário e eficiência do sorting; evitar quebras de rastreabilidade e ofensas em indicadores."},
+    {t:"Execução EnoE, Ship 2.0 e Legacy — etiquetagem para devoluções", meta:{quando:"Sempre que necessário", onde:"SVC", como:"6 passos"}, steps:[
+      ["Verificar localização no SVC via HH","Confirmar SVC: Ativo. Sem este papel, não prossiga."],
+      ["Login no FOS/TMS (HH ou Desktop)","Verifique o usuário correto antes de entrar."],
+      ["Selecionar módulo 'Etiquetagem'","Confirme EnoE / Ship 2.0 / Legacy."],
+      ["Escanear o QR da impressora do SVC","Faça teste rápido de impressão."],
+      ["Escanear o ID do pacote","Garanta leitura limpa, sem dobras."],
+      ["Imprimir e aplicar a nova etiqueta","Passe a mão e cubra tudo — a etiqueta deve cobrir totalmente a anterior."]
+    ], bp:["Teste a impressora no início do turno","Superfície da caixa limpa e seca","Evite dobrar a etiqueta nas arestas","Reimprima se houver manchas"], nota:"Apenas perfis autorizados. Não cubra etiquetas danificadas. Nunca misture áreas diferentes."},
+    {t:"Execução EnoE Ship 2.0 — montagem de pallet (HU) e identificação", meta:{quando:"Conforme necessidade", onde:"TMS/FOS via HH", como:"6 + 2 passos"}, steps:[
+      ["Seleção","No HH (TMS/FOS), selecione 'Montagem de pallet'. Confirme que está logado."],
+      ["Escaneamento","Escaneie a posição do pallet/HU ou digite manualmente. Use a posição correta."],
+      ["Adição de pacotes","Adicione pacotes um a um ao HU — somente pacotes do mesmo fluxo."],
+      ["Impressão","Selecione 'Finalizar montagem' e escaneie a impressora."],
+      ["Confirmação","Tela verde de sucesso confirma o HU montado."],
+      ["Nota","Pallet cheio? Gere um novo HU — não ultrapasse a capacidade do pallet."],
+      ["Preparar o HU","Etiqueta visível, filme transparente, cobrir adequadamente."],
+      ["Registrar o HU","É obrigatório que cada HU tenha registro físico e digital antes do despacho."]
+    ], bp:["Manter QR e etiqueta do HU visíveis","Não misturar HUs ou fluxos diferentes","Se erro de posição, corrigir antes de imprimir","Conferir legibilidade do QR","Evitar bolhas no stretch"]},
+    {t:"Expedição e despacho sistêmico — passo a passo (YMS + TMS/FOS)", meta:{quando:"No despacho", onde:"YMS e TMS/FOS (HH/Desktop)", como:"5 passos"}, steps:[
+      ["Acesse o YMS","Realize a atribuição de docas (ponto 9.6 da WI WI_YMS_SVC_ES)."],
+      ["TMS/FOS","Acesse 'Despacho' e selecione 'Carregar veículo'."],
+      ["Identificação","Escaneie o código do cais/doca."],
+      ["Carregamento","Escaneie cada HU ao carregar; o sistema confirma."],
+      ["Finalização","Selecione 'Despachar' e imprima os documentos/remito."]
+    ], bp:["Valide a doca correta no YMS antes de iniciar","Mantenha as etiquetas dos HUs visíveis e íntegras","Em caso de falha de leitura, reescaneie; se persistir, isole o HU"], nota:"Não despachar sem todos os HUs escaneados no TMS/FOS."},
+    {t:"Expedição — SVC Dedicados vs SVC Híbrido (PA)", meta:{quando:"No despacho", onde:"Módulo de Despacho / Despacho PA", como:"Fluxos paralelos por tipo de site"}, steps:[
+      ["SVC Dedicados — insumos de despacho","Cadastrar lacre; o sistema solicita o código do lacre do caminhão. Conferir legibilidade do lacre."],
+      ["SVC Dedicados — impressão","Selecione 'Imprimir documento', escaneie o código da impressora."],
+      ["SVC Dedicados — entrega e conferência","Entregue uma via ao motorista e fixe outra visível no stretch do pallet."],
+      ["SVC Dedicados — dock out","Após a documentação, realize o dock out no monitor de pátios."],
+      ["SVC Híbrido (PA) — processo de carga","Necessário ID do PA e etiquetas dos HUs."],
+      ["SVC Híbrido (PA) — despacho PA","Selecione 'Despacho PA' > 'Carregar veículo' e escaneie o código do Posto Avançado."]
+    ], nota:"Garanta leitura 100% do lacre e dos HUs. Não obstrua códigos com fita ou stretch. Reimpressões apenas via módulo autorizado."},
+    {t:"Execução do processo Legacy (off-line)", meta:{quando:"Quando o sistema estiver fora do ar", onde:"Área de tratativas", como:"6 passos + expedição"}, steps:[
+      ["Identificação de pacotes","Danificados, fraudes de seller, EnoE de retiradas, EnE de devos, Shipments 2.0 fracassados, não permitidos pelo 2.0."],
+      ["Registro e prealerta","Preencher planilha com ID, Motivo, Origem, Destino, Responsável — somente modelo oficial."],
+      ["Criação manual de HU e montagem","Logistics > Operação > Distribuição > Devolução."],
+      ["Criar HU por canalização","Criar HU e baixar QR — nomear HU padrão do site."],
+      ["Escanear HU e adicionar pacotes","QRs legíveis e conferir IDs."],
+      ["Fechar HU","Contagem física deve ser igual à sistêmica."]
+    ], bp:["1 HU por canalização","Etiquetas visíveis","Conferir divergências","Registrar ocorrências"], nota:"Sistema fora do ar? Manter planilha atualizada e subir dados ao restabelecer."},
+    {t:"Receita Federal — bloqueio e atualização de status (MLB · SVC)", meta:{quando:"Quando houver retenção fiscal", onde:"JIRA + MLB-SVC", como:"4 passos"}, steps:[
+      ["Link do JIRA","Use o link corporativo e suas credenciais."],
+      ["No MLB-SVC, alterar os IDs","Indique a cidade e altere para 'Aguardando documentação fiscal'."],
+      ["No JIRA, alterar status do pacote","Alterar para 'Confiscado'."],
+      ["Preencher campos obrigatórios","Localização (ID da Facility/SVC): Sim; Motivo da troca: Receita Federal; Status: 0631 – Confiscado."]
+    ], nota:"Anexar evidências quando houver (foto/comprovante). Conferir IDs e SVC correto antes de salvar. Em caso de dúvida, acione o líder/backoffice."},
+    {t:"RTS (retorno à estação) — preparação da área", meta:{quando:"Antes de receber pacotes do dia", onde:"Área de recebimento RTS", como:"5S + equipamentos"}, steps:[
+      ["Preparar a área (5S)","Separar, organizar, limpar, padronizar e manter. Conferir EPIs e sinalização de segurança."],
+      ["HH com YMS","Garantir HH carregado e logado no YMS; testar leitura de QR/código de barras."],
+      ["HH com Logistics","Acesso: Processamento de pacotes > Retorno à estação. Validar permissões de usuário."],
+      ["Computador + Sheets","Conferir internet e credenciais; abrir planilhas do turno."],
+      ["Materiais de apoio","Marcador permanente, etiquetas/fita, lixeira e organização por perto."],
+      ["Gaiolas e paletes demarcados","1 gaiola para Solução de Problemas, Devolução à Origem e Sorting; 1 gaiola/palete demarcado para volumosos."]
+    ], bp:["Baterias > 50% e cabos disponíveis","Demarcações visíveis; QRs legíveis","Não misturar sortables e volumosos","Reportar falhas antes de iniciar"]},
+    {t:"RTS (retorno à estação) — passo a passo no Logistics", meta:{quando:"No recebimento de retorno", onde:"Logistics", como:"6 passos"}, steps:[
+      ["Receber pacotes de retorno","Faça o recebimento no Logistics para cada pacote que retorna à estação."],
+      ["Abrir módulo no Logistics","Selecione 'Processamento de pacotes'. Confirme que está logado corretamente."],
+      ["Selecionar 'Retorno à estação'","Entre no módulo para iniciar o recebimento."],
+      ["Escanear ou digitar","Escaneie o código de barras; se labeless, use os QRs genéricos do sistema; se não for possível, use 'digitar'."],
+      ["Sugerir classificação","O sistema sugere: Sorting, Devolução, Solução de Problemas ou Failover — verifique e confirme."],
+      ["Pendências e status atualizado","Acompanhe pendências e status na tabela do módulo."]
+    ], bp:["Use 'digitar' apenas se o escaneio falhar","Revise a sugestão do sistema antes de confirmar","Mantenha HH carregado e conexão estável"]},
+    {t:"Recepção de pacotes RTS — classificação", meta:{quando:"No recebimento de retorno", onde:"RTS", como:"4 categorias"}, steps:[
+      ["Classificação (sorting)","Pacotes que ainda não cumpriram 3 tentativas válidas. Devem retornar ao fluxo de Sorting para expedição no próximo dia."],
+      ["Devolução","Pacotes que não devem retornar para nova tentativa. Direcionar à área de Devolução à Origem."],
+      ["Solução de problemas","Pacotes que requerem tratativas do Problem Solver. Encaminhar ao PS e registrar ocorrência e evidências."],
+      ["Failover","Envio para um Place após 3 insucessos. Depende da capacidade do SVC; distância máx. até 3000 m. Aplicar etiqueta e encaminhar."]
+    ], bp:["Confirme a sugestão do sistema antes de movimentar o pacote","Mantenha QRs e etiquetas visíveis e intactos","Separe fisicamente por área: Sorting, Devolução, PS e Failover"]}
+  ]
+}
+};
+
+/* ============================================================
+   RENDER a posto (workstation) section from DATA
+   ============================================================ */
+function renderPosto(key){
+  const d = DATA[key];
+  let html = '';
+  html += `<div class="label-tag"><span class="dot"></span> ETIQUETA · <b>${d.eyebrow}</b></div>`;
+  html += `<h2>${d.title}</h2>`;
+  html += `<p class="lede">${d.lede}</p>`;
+
+  if(d.indicadores){
+    html += `<div class="indic" style="margin-bottom:24px;">${d.indicadores.map(i=>`<span>${i}</span>`).join('')}</div>`;
+  }
+
+  // fluxo card
+  html += `<div class="card"><h3><span class="num">FLUXO</span> Fluxo da rotina</h3><div class="flux">`;
+  d.fluxo.forEach((f,i)=>{
+    html += `<div class="flux-item"><div class="flux-num">${i+1}</div><div class="flux-body"><b>${f[0]}</b><span>${f[1]}</span></div></div>`;
+  });
+  html += `</div></div>`;
+
+  // dicas / atencao / qft
+  html += `<div class="grid2" style="margin-bottom:18px;">`;
+  if(d.sempre){
+    html += `<div class="box good"><h4>✅ Dicas rápidas — Sempre</h4><ul>${d.sempre.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
+  }
+  if(d.atencao){
+    html += `<div class="box warn"><h4>⚠️ Atenção</h4><ul>${d.atencao.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
+  }
+  html += `</div>`;
+
+  if(d.qft){
+    html += `<div class="card"><h3><span class="num">?</span> O que fazer quando…</h3><table class="qft">`;
+    d.qft.forEach(r=>{ html += `<tr><td class="sit">${r[0]}</td><td class="act">${r[1]}</td></tr>`; });
+    html += `</table></div>`;
+  }
+
+  if(d.gaiola){
+    html += `<div class="box info" style="margin-bottom:18px;"><h4>📦 Conteúdo da gaiola</h4><ul><li>${d.gaiola}</li></ul></div>`;
+  }
+
+  if(d.zonas){
+    html += `<div class="card"><h3><span class="num">ZONAS</span> Zonas operacionais — quando abrir cada uma</h3><div class="zonegrid">`;
+    d.zonas.forEach(z=>{
+      html += `<div class="zone"><b>${z[0]}</b><p>${z[1]}</p><div class="when">✓ ${z[2]}</div></div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // subprocessos accordions
+  html += `<h3 style="margin:26px 0 12px; font-size:17px;">Procedimentos detalhados</h3>`;
+  d.sub.forEach((s,idx)=>{
+    html += `<details class="acc"><summary>${s.t} <span class="chev">▶</span></summary><div class="acc-body">`;
+    if(s.meta){
+      html += `<div class="meta-row">
+        <div><b>Quando</b>${s.meta.quando}</div>
+        <div><b>Onde</b>${s.meta.onde}</div>
+        <div><b>Como</b>${s.meta.como}</div>
+      </div>`;
+    }
+    html += `<div class="mini-steps">`;
+    s.steps.forEach((st,i)=>{
+      html += `<div class="mini-step"><div class="n">${i+1}</div><div><b>${st[0]}</b><span>${st[1]}</span></div></div>`;
+    });
+    html += `</div>`;
+    if(s.nota){ html += `<div class="tagline">⚠ ${s.nota}</div>`; }
+    if(s.bp){ html += `<div class="bp">${s.bp.map(b=>`<span>${b}</span>`).join('')}</div>`; }
+    html += `</div></details>`;
+  });
+
+  return html;
+}
+
+/* ============================================================
+   IMPLANTAÇÃO section (static)
+   ============================================================ */
+function renderImplantacao(){
+  return `
+  <div class="label-tag"><span class="dot"></span> ETIQUETA · <b>Programa</b></div>
+  <h2>Capacitação &amp; rollout do Projeto PS</h2>
+  <p class="lede">Como o conhecimento deste guia é levado ao piso: papéis, estratégia de capacitação e cronograma de implantação.</p>
+
+  <div class="card">
+    <h3><span class="num">01</span> Estrutura operacional — papéis</h3>
+    <div class="pillrow">
+      <div class="pill">📥 PS Inbound</div>
+      <div class="pill">🛣️ PS Rua</div>
+      <div class="pill">🥅 PS Goleiro</div>
+      <div class="pill">🧰 PS Repack</div>
+      <div class="pill">📦 PS Volumoso</div>
+      <div class="pill">🚚 PS Expedição</div>
+    </div>
+    <p style="font-size:13px;color:var(--muted);">Dimensionamento típico: 1 PS Rua a cada 10 ruas · 1 PS por operação para Goleiro, Repack e Volumoso.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">02</span> Papel do ICQA (EO) no treinamento</h3>
+    <div class="grid2">
+      <div class="box info"><h4>Em campo</h4><ul><li>Treinar em campo e acompanhar lado a lado.</li><li>Corrigir em tempo real e esclarecer dúvidas.</li></ul></div>
+      <div class="box good"><h4>Governança</h4><ul><li>Medir a efetividade e a aderência ao processo.</li><li>Registrar feedbacks e oportunidades.</li><li>Garantir a evolução contínua operacional.</li></ul></div>
+    </div>
+    <p style="font-size:12.5px;color:var(--muted);margin-top:10px;">Piloto: SP Capital — SSP5, SSP17, SSP20, SSP34, SSP30, SSP40.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">03</span> Jornada de capacitação — modelo 70-20-10</h3>
+    <div class="grid2">
+      <div class="box good"><h4>70% · Fase 1 — Prática (Gemba)</h4><ul><li>Treinamento lado a lado</li><li>Demonstração da atividade</li><li>Correção em tempo real</li><li>Validação da execução</li></ul></div>
+      <div class="box info"><h4>20% · Fase 2 — Consolidação (Biblioteca)</h4><ul><li>WI, fluxos, checklists</li><li>Boas práticas &amp; FAQ</li><li>Consulta rápida e padronização</li></ul></div>
+    </div>
+    <div class="box warn" style="margin-top:12px;"><h4>10% · Fase 3 — Sustentação (Microlearning)</h4><ul><li>Vídeos de 30–90s com casos reais, dicas rápidas e reforço periódico.</li></ul></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">04</span> Critério de liberação do PS</h3>
+    <div class="flux">
+      <div class="flux-item"><div class="flux-num">1</div><div class="flux-body"><b>Treinamento concluído</b></div></div>
+      <div class="flux-item"><div class="flux-num">2</div><div class="flux-body"><b>Execução acompanhada</b></div></div>
+      <div class="flux-item"><div class="flux-num">3</div><div class="flux-body"><b>Auditoria aprovada (ICQA)</b></div></div>
+      <div class="flux-item"><div class="flux-num">4</div><div class="flux-body"><b>Validação do analista</b></div></div>
+      <div class="flux-item"><div class="flux-num">5</div><div class="flux-body"><b>Indicadores estáveis</b></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">05</span> Indicadores de efetividade</h3>
+    <div class="indic">
+      <span>% de pessoas treinadas</span><span>Qtde. de Etiqueta Branca</span><span>Correções em campo Poka Yoke</span>
+      <span>Acurácia de Inventário</span><span>G100</span><span>Eficiência de Sorting</span><span>Inventário Hora/Hora (Predict)</span>
+      <span>Efetividade do treinamento (antes x depois)</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">06</span> Cronograma e waves de rollout</h3>
+    <table class="qft">
+      <tr><td class="sit">Wave 1 — W29</td><td class="act">SP Capital: SSP5, SSP17, SSP20, SSP34, SSP30, SSP40 · foco: aprendizado e ajuste.</td></tr>
+      <tr><td class="sit">Wave 2 — W31</td><td class="act">1 SPC · 2 NONECO · 2 RIMES · 2 SPI/SUL · foco: expansão controlada.</td></tr>
+      <tr><td class="sit">Wave 3 — W35</td><td class="act">Demais unidades (regional) · foco: rollout nacional.</td></tr>
+    </table>
+    <p style="font-size:12px;color:var(--muted);margin-top:10px;">W29: aprovação do plano · W30: início dos treinamentos em campo · W31: ajustes conforme feedback · em paralelo: construção da biblioteca, produção de microlearnings e acompanhamento da evolução dos indicadores nas Tiers 4, 5 e 6.</p>
+  </div>
+  `;
+}
+
+/* ============================================================
+   QUIZ
+   ============================================================ */
+const QUIZ = [
+  {q:"No fluxo do PS Rua, com que frequência o 'hora a hora' deve ser realizado?", opts:["A cada 15 minutos","A cada 30 minutos","A cada 1 hora","Apenas no início do turno"], correct:1, exp:"O PS Rua deve realizar o hora a hora a cada 30 minutos, sempre buscando pacotes sem alocação há mais de 30'."},
+  {q:"No Goleiro, quando um pacote apresenta etiqueta errada (Poka Yoke), qual etiqueta deve ser colada por cima da etiqueta errada?", opts:["Etiqueta branca","Etiqueta azul","Etiqueta vermelha","Etiqueta amarela"], correct:1, exp:"Cola-se a etiqueta azul sobre a etiqueta errada, e o pacote é levado ao ponto QR do carrinho até ser direcionado à esteira."},
+  {q:"No PS Inbound, ao escanear o documento de carga, onde a leitura deve ser feita?", opts:["Na etiqueta do romaneio","Na HU (unidade de manuseio)","No verso da caixa","Na nota fiscal impressa"], correct:1, exp:"A leitura deve ser feita na HU, nunca na etiqueta que acompanha o romaneio — isso evita divergências no FOS."},
+  {q:"No PS Repack, até qual valor os TLs podem validar avarias diretamente na operação?", opts:["US$ 100","US$ 200","US$ 350","US$ 500"], correct:2, exp:"TLs devem validar avarias de até US$ 350 no piso; avarias da origem devem ser lançadas em até 24h."},
+  {q:"No PS Volumoso, o que deve ser feito ANTES do ONEBIPE?", opts:["Reembalar automaticamente todos os pacotes","Triar o pacote para identificar avarias","Enviar direto para a rota","Registrar no Jira"], correct:1, exp:"É preciso triar o pacote para identificar avarias antes do ONEBIPE, evitando que um pacote danificado siga no fluxo sem tratativa."},
+  {q:"No Inventário, qual zona deve ser resolvida obrigatoriamente em até 24h?", opts:["Sorting","Dispatch","Problem Solver (PS)","In Container"], correct:2, exp:"A zona Problem Solver (PS) reúne divergências, faltantes, retirados de aduana e avarias sem tratativa — resolução obrigatória em até 24h."},
+  {q:"Na Expedição (Outbound), o que o indicador TMC monitora?", opts:["O tempo médio de carregamento do carro na vaga","O total de pacotes despachados no dia","A taxa de missorted","O número de aduanas em execução"], correct:0, exp:"O TMC (tempo médio de carregamento) mostra se o carro está atrasado; os carros devem carregar em até 30 minutos."}
+];
+
+function renderQuiz(){
+  const wrap = document.getElementById('quizWrap');
+  wrap.innerHTML = '';
+  QUIZ.forEach((item,qi)=>{
+    const card = document.createElement('div');
+    card.className = 'qcard';
+    card.innerHTML = `<p class="q">${qi+1}. ${item.q}</p>` +
+      item.opts.map((o,oi)=>`<button class="opt" data-q="${qi}" data-o="${oi}">${o}</button>`).join('') +
+      `<div class="qexp" id="exp-${qi}">💡 ${item.exp}</div>`;
+    wrap.appendChild(card);
+  });
+  wrap.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', function(){
+      const qi = +this.dataset.q, oi = +this.dataset.o;
+      const card = this.closest('.qcard');
+      if(card.dataset.answered) return;
+      card.dataset.answered = "1";
+      card.querySelectorAll('.opt').forEach(b=>{
+        const bo = +b.dataset.o;
+        if(bo === QUIZ[qi].correct) b.classList.add('correct');
+        else if(bo === oi) b.classList.add('wrong');
+        b.style.pointerEvents = 'none';
+      });
+      document.getElementById('exp-'+qi).style.display = 'block';
+      maybeShowScore();
+    });
+  });
+}
+function maybeShowScore(){
+  const cards = document.querySelectorAll('.qcard');
+  const answered = document.querySelectorAll('.qcard[data-answered]');
+  if(answered.length === cards.length){
+    let score = 0;
+    cards.forEach((c,qi)=>{
+      const correctBtn = c.querySelector('.opt.correct');
+      const wrongClicked = c.querySelector('.opt.wrong');
+      if(correctBtn && !wrongClicked) score++;
+    });
+    document.getElementById('scoreBox').style.display = 'block';
+    document.getElementById('scoreNum').textContent = score + '/' + QUIZ.length;
+  }
+}
+
+/* ============================================================
+   NAV / boot
+   ============================================================ */
+const ORDER = ['overview','inbound','rua','goleiro','volumoso','repack','outbound','inventario','implantacao','quiz'];
+const LABELS = {overview:'visão-geral',inbound:'ps-inbound',rua:'ps-rua',goleiro:'ps-goleiro',volumoso:'ps-volumoso',repack:'ps-repack',outbound:'outbound-expedição',inventario:'inventário',implantacao:'capacitação-rollout',quiz:'avaliação'};
+
+function go(key){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+key).classList.add('active');
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.dataset.target===key));
+  document.getElementById('crumb').textContent = 'svc-core / ' + LABELS[key];
+  const idx = ORDER.indexOf(key)+1;
+  document.getElementById('progtxt').textContent = idx + ' / ' + ORDER.length;
+  document.getElementById('progbar').style.width = (idx/ORDER.length*100) + '%';
+  document.getElementById('content').scrollTo?.(0,0);
+  window.scrollTo(0,0);
+  document.querySelector('.sidebar').classList.remove('open');
+}
+
+// build postos
+['inbound','rua','goleiro','volumoso','repack','outbound','inventario'].forEach(key=>{
+  const sec = document.getElementById('sec-'+key);
+  sec.innerHTML = renderPosto(key) + `<div class="pager">
+    <button class="pgbtn ghost" onclick="goPrev('${key}')">← Anterior</button>
+    <button class="pgbtn" onclick="goNext('${key}')">Próximo →</button>
+  </div>`;
+});
+document.getElementById('sec-implantacao').innerHTML = renderImplantacao() + `<div class="pager">
+    <button class="pgbtn ghost" onclick="go('inventario')">← Inventário</button>
+    <button class="pgbtn" onclick="go('quiz')">Ir para avaliação →</button>
+  </div>`;
+
+function goNext(key){ const i = ORDER.indexOf(key); go(ORDER[Math.min(i+1, ORDER.length-1)]); }
+function goPrev(key){ const i = ORDER.indexOf(key); go(ORDER[Math.max(i-1, 0)]); }
+
+renderQuiz();
+go('overview');
+</script>
+</body>
+</html>
